@@ -36,7 +36,7 @@ mergedtest <- cbind(subjecttest, xtest, ytest)
 mergeddata <- rbind(mergedtrain, mergedtest)
 
 #Extracting Mean and Standard Deviation
-extracteddata <- mergeddata %>% select(subject, code, contains("mean"), contains("std"))
+extracteddata <- select(mergeddata, contains("mean"), contains("std"))
 
 #Naming Activities
 extracteddata$code <- activities[extracteddata$code, 2]
@@ -52,5 +52,6 @@ names(extracteddata) <- gsub("^f", "Frequency", names(extracteddata))
 #Second Independant Dataset
 finaldata <- extracteddata %>%
     group_by(subject, activity) %>%
-    summarise_all(funs(mean))
+    summarise_all(funs(mean)) %>%
+    ungroup()
 write.table(finaldata, "FinalData.txt", row.name=FALSE)
