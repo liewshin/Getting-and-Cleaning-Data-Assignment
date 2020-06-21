@@ -1,3 +1,9 @@
+#Installing Packages
+if(!require(dplyr)){
+        install.packages("dplyr")
+}
+library(dplyr)
+
 #Checking & Retrieving Data
 filename <- "assn3.zip"
 if(!file.exists(filename)){dir.create("filename")
@@ -23,10 +29,10 @@ ytrain <- read.table("UCI HAR Dataset/train/y_train.txt")
 #Assigning Column Names
 colnames(activitylabels) <- c('ActivityNumber','Activity')
 colnames(features) <- c('Number','Activity')
-colnames(subjecttest) <- "Subject Number"
+colnames(subjecttest) <- "SubjectNumber"
 colnames(xtest) <- features[,2]
 colnames(ytest) <- "ActivityNumber"
-colnames(subjecttrain) <- "Subject Number"
+colnames(subjecttrain) <- "SubjectNumber"
 colnames(xtrain) <- features[,2]
 colnames(ytrain) <-"ActivityNumber"
 
@@ -36,22 +42,22 @@ mergedtest <- cbind(subjecttest, xtest, ytest)
 mergeddata <- rbind(mergedtrain, mergedtest)
 
 #Extracting Mean and Standard Deviation
-extracteddata <- select(mergeddata, contains("mean"), contains("std"))
+extracteddata <- mergeddata %>% select(contains("mean"), contains("std"))
 
-#Naming Activities
-extracteddata$code <- activities[extracteddata$code, 2]
+#Naming 
+names(extracteddata) <- c("ActivityNumber", "Activity")
 
 #Labelling Dataset
 names(extracteddata) <- gsub("Acc", "Accelerometer", names(extracteddata))
 names(extracteddata) <- gsub("Gyro", "Gyroscope", names(extracteddata))
-names(extracteddata) < -gsub("BodyBody", "Body", names(extracteddata))
+names(extracteddata) <- gsub("BodyBody", "Body", names(extracteddata))
 names(extracteddata) <- gsub("Mag", "Magnitude", names(extracteddata))
 names(extracteddata) <- gsub("^t", "Time", names(extracteddata))
 names(extracteddata) <- gsub("^f", "Frequency", names(extracteddata))
 
 #Second Independant Dataset
 finaldata <- extracteddata %>%
-    group_by(subject, activity) %>%
+    group_by(SubjectNumber, Activity) %>%
     summarise_all(funs(mean)) %>%
     ungroup()
 write.table(finaldata, "FinalData.txt", row.name=FALSE)
