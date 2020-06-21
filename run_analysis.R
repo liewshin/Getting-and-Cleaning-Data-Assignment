@@ -28,33 +28,26 @@ colnames(xtest) <- features[,2]
 colnames(ytest) <- "ActivityNumber"
 colnames(subjecttrain) <- "Subject Number"
 colnames(xtrain) <- features[,2]
-colnames(y_train) <-"ActivityNumber"
+colnames(ytrain) <-"ActivityNumber"
 
 #Merging Test and Training Data
 mergedtrain <- cbind(subjecttrain, xtrain, ytrain)
 mergedtest <- cbind(subjecttest, xtest, ytest)
-mergedall <- rbind(mergedtrain, mergedtest)
+mergeddata <- rbind(mergedtrain, mergedtest)
 
 #Extracting Mean and Standard Deviation
-extracteddata <- mergedall %>% select(subject, code, contains("mean"), contains("std"))
+extracteddata <- mergeddata %>% select(subject, code, contains("mean"), contains("std"))
 
 #Naming Activities
 extracteddata$code <- activities[extracteddata$code, 2]
 
 #Labelling Dataset
-names(extracteddata)[2] = "activity"
 names(extracteddata) <- gsub("Acc", "Accelerometer", names(extracteddata))
 names(extracteddata) <- gsub("Gyro", "Gyroscope", names(extracteddata))
 names(extracteddata) < -gsub("BodyBody", "Body", names(extracteddata))
 names(extracteddata) <- gsub("Mag", "Magnitude", names(extracteddata))
 names(extracteddata) <- gsub("^t", "Time", names(extracteddata))
 names(extracteddata) <- gsub("^f", "Frequency", names(extracteddata))
-names(extracteddata) <- gsub("tBody", "TimeBody", names(extracteddata))
-names(extracteddata) <- gsub("-mean()", "Mean", names(extracteddata), ignore.case = TRUE)
-names(extracteddata) <- gsub("-std()", "STD", names(extracteddata), ignore.case = TRUE)
-names(extracteddata) <- gsub("-freq()", "Frequency", names(extracteddata), ignore.case = TRUE)
-names(extracteddata) <- gsub("angle", "Angle", names(extracteddata))
-names(extracteddata) <- gsub("gravity", "Gravity", names(extracteddata))
 
 #Second Independant Dataset
 finaldata <- extracteddata %>%
