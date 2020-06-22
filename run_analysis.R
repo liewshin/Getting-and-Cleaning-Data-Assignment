@@ -7,14 +7,14 @@ library(dplyr)
 #Checking & Retrieving Data
 filename <- "assn3.zip"
 if(!file.exists(filename)){dir.create("filename")
-                           filedata <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
-                           download.file(filedata, filename, method = "curl")
-                           }
+        filedata <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
+        download.file(filedata, filename, method = "curl")
+}
 
 #Unzipping Data
 if (!file.exists("assgn3")){dir.create("assgn3")
-                            assgn3 <- unzip(zipfile=FileName, exdir="assgn3")
-                            }
+        assgn3 <- unzip(zipfile=FileName, exdir="assgn3")
+}
 
 #Reading Tables
 activitylabels <- read.table("UCI HAR Dataset/activity_labels.txt")
@@ -42,10 +42,16 @@ mergedtest <- cbind(subjecttest, xtest, ytest)
 mergeddata <- rbind(mergedtrain, mergedtest)
 
 #Extracting Mean and Standard Deviation
-extracteddata <- mergeddata %>% select(contains("mean"), contains("std"))
+extracteddata <- mergeddata %>% select(contains("mean"), contains("std"), contains("SubjectNumber"), contains("ActivityNumber"))
 
 #Naming 
-names(extracteddata) <- c("ActivityNumber", "Activity")
+extracteddata$ActivityNumber[extracteddata$ActivityNumber %in% "1"] <- "WALKING"
+extracteddata$ActivityNumber[extracteddata$ActivityNumber %in% "2"] <- "WALKING_UPSTAIRS"
+extracteddata$ActivityNumber[extracteddata$ActivityNumber %in% "3"] <- "WALKING_DOWNSTAIRS"
+extracteddata$ActivityNumber[extracteddata$ActivityNumber %in% "4"] <- "SITTING"
+extracteddata$ActivityNumber[extracteddata$ActivityNumber %in% "5"] <- "STANDING"
+extracteddata$ActivityNumber[extracteddata$ActivityNumber %in% "6"] <- "LAYING"
+names(extracteddata) <- gsub("ActivityNumber", "Activity", names(extracteddata))
 
 #Labelling Dataset
 names(extracteddata) <- gsub("Acc", "Accelerometer", names(extracteddata))
@@ -57,7 +63,7 @@ names(extracteddata) <- gsub("^f", "Frequency", names(extracteddata))
 
 #Second Independant Dataset
 finaldata <- extracteddata %>%
-    group_by(SubjectNumber, Activity) %>%
-    summarise_all(funs(mean)) %>%
-    ungroup()
+        group_by(SubjectNumber, Activity) %>%
+        summarise_all(list(mean = mean, median = median)) %>%
+        ungroup()
 write.table(finaldata, "FinalData.txt", row.name=FALSE)
